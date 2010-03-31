@@ -1,0 +1,6 @@
+git add
+
+ git commit -m 'myProj -> registration files'
+
+git push origin master
+

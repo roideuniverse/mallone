@@ -35,9 +35,10 @@ public class DisplayProductsMallone implements EntryPoint {
 		private ListBox brandsList;
 		private String[] brand_names ;
 		private Integer[] brand_id;
+		private VerticalPanel mainPanel;
 		
 		Integer IndexProduct=0;
-		Integer IndexBrand=0;
+		Integer IndexBrand= -1;
 		
 		String[] products = {
 				"Air Cooler",
@@ -104,9 +105,60 @@ public class DisplayProductsMallone implements EntryPoint {
 		}
         
         productList.setWidth("100px");
+        
+        brandForm = new FormPanel();
+        brandForm.setMethod(FormPanel.METHOD_POST);
+        brandForm.setAction("php/getData.php");
+        brandsList = new ListBox();
+        brandsList.setWidth("100px");
+        brandsList.addItem("Brands","0");
+        
+        
+        productForm.add(productList);
+        brandForm.add(brandsList);
+        
+        x.add(productForm);
+        x.add(brandForm);        
+
+        
+        brandsList.addClickHandler(new ClickHandler() {
+        	public void onClick(ClickEvent e ) {
+ //       		Window.alert("brand clicked");
+				if ( brandsList.getSelectedIndex() != IndexBrand) 
+				{
+					IndexBrand = brandsList.getSelectedIndex();			
+					Window.alert("calling brandform submit");
+					brandForm.submit();
+				}
+				else 
+					IndexBrand = 0;
+        	}
+        });
+
+        brandForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+        	public void onSubmit(SubmitEvent e) {
+        	Window.alert("submit of brands");
+        	
+        	}
+        });
+        
+        brandForm.addSubmitCompleteHandler( new FormPanel.SubmitCompleteHandler() {
+        	public void onSubmitComplete(SubmitCompleteEvent e){
+        		Window.alert("brandFormSubmit output=" + e.getResults());
+        		
+        		mainPanel = new VerticalPanel();
+        		mainPanel.setSize("100%", "100%");
+        		mainPanel.setBorderWidth(2);
+        		CenterDisplay c = CenterDisplay.createInstance() ;
+        		
+        		mainPanel.add(c);
+        		RootPanel.get("_center_display_").add(mainPanel);
+        	}
+        });
 
         productList.addClickHandler(new ClickHandler() {
         	public void onClick(ClickEvent e ) {
+//        		Window.alert("ProductList clicked");
 				if ( productList.getSelectedIndex() != IndexProduct) 
 				{
 					IndexProduct = productList.getSelectedIndex();
@@ -117,31 +169,6 @@ public class DisplayProductsMallone implements EntryPoint {
         	}
         });
         
-
-        brandForm = new FormPanel();
-        
-        brandsList.addClickHandler(new ClickHandler() {
-        	public void onClick(ClickEvent e ) {
-				if ( brandsList.getSelectedIndex() != IndexBrand) 
-				{
-					IndexBrand = brandsList.getSelectedIndex();
-					brandForm.submit();
-				}
-				else 
-					IndexBrand = 0;
-        	}
-        });
-        
-        brandsList = new ListBox();
-        brandsList.setWidth("100px");
-        brandsList.addItem("Brands","0");
-        
-        productForm.add(productList);
-        brandForm.add(brandsList);
-        
-        x.add(productForm);
-        x.add(brandForm);
-
         productForm.addSubmitHandler( new FormPanel.SubmitHandler() {
         	public void onSubmit(SubmitEvent event) {
         		Window.alert("sumit of product");
@@ -153,13 +180,7 @@ public class DisplayProductsMallone implements EntryPoint {
         	}
         });
         
-        brandForm.addSubmitHandler(new SubmitHandler() {
-        	public void onSubmit(SubmitEvent e) {
-        	Window.alert("submit of brands");
-        	
-        	}
-        });
-        
+
         productForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             public void onSubmitComplete(SubmitCompleteEvent event) {
                 // When the form submission is successfully completed, this event is
