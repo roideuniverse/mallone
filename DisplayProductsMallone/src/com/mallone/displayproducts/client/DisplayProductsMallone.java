@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.*;
 public class DisplayProductsMallone implements EntryPoint {
 	
 //		private VerticalPanel x;
+		private VerticalPanel formProductBrand ;
 	    private ListBox productList;
 		private FormPanel productForm;
 		private FormPanel brandForm;
@@ -36,6 +37,7 @@ public class DisplayProductsMallone implements EntryPoint {
 		private String[] brand_names ;
 		private Integer[] brand_id;
 		private VerticalPanel mainPanel;
+		private ListBox productNameSelected ;
 		
 		Integer IndexProduct=0;
 		Integer IndexBrand= -1;
@@ -100,22 +102,31 @@ public class DisplayProductsMallone implements EntryPoint {
 		
 		productList.addItem("Products", "0" );
 		Integer i;
-		for( i=1; i <=33 ; i++) {
+		for( i=1; i <=33 ; i++) 
+		{
 			productList.addItem(products[i-1], i.toString() );
 		}
         
         productList.setWidth("100px");
         
+ 
+        
+        brandsList = new ListBox();
+        brandsList.setName("Brands");
+        brandsList.setWidth("100px");
+        brandsList.addItem("Brands","0");
+ 
+        //BRAND FORM
         brandForm = new FormPanel();
         brandForm.setMethod(FormPanel.METHOD_POST);
         brandForm.setAction("php/getData.php");
-        brandsList = new ListBox();
-        brandsList.setWidth("100px");
-        brandsList.addItem("Brands","0");
         
+        
+        formProductBrand = new VerticalPanel();
+        formProductBrand.add(brandsList);
         
         productForm.add(productList);
-        brandForm.add(brandsList);
+        brandForm.add(formProductBrand);
         
         x.add(productForm);
         x.add(brandForm);        
@@ -128,7 +139,13 @@ public class DisplayProductsMallone implements EntryPoint {
 				{
 					IndexBrand = brandsList.getSelectedIndex();			
 					Window.alert("calling brandform submit");
+					productNameSelected = new ListBox();
+					productNameSelected.setVisible(false);
+					productNameSelected.setName("Product");
+					productNameSelected.addItem("product", IndexProduct.toString());
+					formProductBrand.add(productNameSelected);
 					brandForm.submit();
+					
 				}
 				else 
 					IndexBrand = 0;
@@ -137,6 +154,11 @@ public class DisplayProductsMallone implements EntryPoint {
 
         brandForm.addSubmitHandler(new FormPanel.SubmitHandler() {
         	public void onSubmit(SubmitEvent e) {
+        		if(IndexProduct == 0)
+        		{
+        		//	Window.alert("You have not selected a product");
+        		//	e.cancel(); uncomment this later on
+        		}
         	Window.alert("submit of brands");
         	
         	}
@@ -146,10 +168,12 @@ public class DisplayProductsMallone implements EntryPoint {
         	public void onSubmitComplete(SubmitCompleteEvent e){
         		Window.alert("brandFormSubmit output=" + e.getResults());
         		
+        		brandForm.remove(productNameSelected);
         		mainPanel = new VerticalPanel();
         		mainPanel.setSize("100%", "100%");
-        		mainPanel.setBorderWidth(2);
-        		CenterDisplay c = CenterDisplay.createInstance() ;
+        		mainPanel.setHeight("100%");
+        		mainPanel.setBorderWidth(1);
+        		CenterDisplay c = CenterDisplay.createInstance(e.getResults()) ;
         		
         		mainPanel.add(c);
         		RootPanel.get("_center_display_").add(mainPanel);
@@ -171,7 +195,7 @@ public class DisplayProductsMallone implements EntryPoint {
         
         productForm.addSubmitHandler( new FormPanel.SubmitHandler() {
         	public void onSubmit(SubmitEvent event) {
-        		Window.alert("sumit of product");
+    //    		Window.alert("sumit of product");
         		int brandListcount = brandsList.getItemCount();
         		for( int it=1 ; it < brandListcount ; it++ )
         		{
@@ -194,7 +218,7 @@ public class DisplayProductsMallone implements EntryPoint {
                 Integer test = (results.length) / 2;
                 
                 Window.alert(test.toString() );
-                String msg = ":P\n";
+  //              String msg = ":P\n";
                 brand_names = new String[test] ;
                 brand_id = new Integer[test];
                 
@@ -204,7 +228,7 @@ public class DisplayProductsMallone implements EntryPoint {
                 	brand_names[i] = var[1];
                 	brand_id[i] = Integer.parseInt( var[0] ) ;
                	
-                	msg= msg + brand_names[i] + "=" + brand_id[i].toString() + ":::::";
+ //               	msg= msg + brand_names[i] + "=" + brand_id[i].toString() + ":::::";
                 }
                 
                 int pos=0;
@@ -214,7 +238,7 @@ public class DisplayProductsMallone implements EntryPoint {
                 	brandsList.addItem(s, brand_id[pos].toString() ) ;
                 	pos++;
                 }
-                Window.alert(msg ); 
+ //               Window.alert(msg ); 
                 
                 
                 
