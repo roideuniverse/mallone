@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.FormPanel.*;
+import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
 import com.google.gwt.user.client.ui.*;
 
 
@@ -29,6 +30,10 @@ public class CenterDisplay extends Composite {
 	
 	private HorizontalPanel centerBlock;
 	private static String recStr = "";
+	private FormPanel formCompare;
+	private VerticalPanel formVPanel;
+	private Integer selected =0;
+	private Hidden selectedNo;
 	
 	public static CenterDisplay createInstance(String s) {
 		s = "PRODUCT_ID=2:BRAND_ID=5:BRAND_CATEGORY_CODE= Samsung001:" +
@@ -44,7 +49,18 @@ public class CenterDisplay extends Composite {
 	}
 
 	public CenterDisplay() {
-	
+		
+		selectedNo = new Hidden();
+		selectedNo.setName("COUNT");
+		
+		formCompare = new FormPanel();
+		formCompare.setMethod(FormPanel.METHOD_GET);
+		formCompare.setAction("php/compare.php");
+		formVPanel = new VerticalPanel();
+		formCompare.add(formVPanel);
+		formCompare.setVisible(false);
+		formVPanel.add(selectedNo);
+
 		centerBlock = new HorizontalPanel();
 		centerBlock.setWidth("100%");
 		centerBlock.setHeight("100%");
@@ -74,32 +90,46 @@ public class CenterDisplay extends Composite {
 		left2.setBorderWidth(1);
 		VerticalPanel left3 = new VerticalPanel();
 		left3.setBorderWidth(1);
+		VerticalPanel leftBottom = new VerticalPanel();
+		leftBottom.setSize("100%", "100%");
+		leftBottom.setBorderWidth(1);
 		
 		left.add(left1);
-		left.setCellHeight(left1, "33%");
+		left.setCellHeight(left1, "30%");
 		left.add(left2);
-		left.setCellHeight(left2, "33%");
+		left.setCellHeight(left2, "30%");
 		left.add(left3);
-		left.setCellHeight(left3, "34%");
+		left.setCellHeight(left3, "30%");
+		left.add(leftBottom);
+		left.setCellHeight(leftBottom, "10%");
 		
 		centerBlock.add(middle);
 		centerBlock.setCellWidth(middle, "33%");
 		
 		VerticalPanel middle1 = new VerticalPanel();
 		middle1.setSize("100%", "100%");
-		middle1.setBorderWidth(2);
+		middle1.setBorderWidth(1);
 		VerticalPanel middle2 = new VerticalPanel();
 		middle2.setSize("100%", "100%");
 		middle2.setBorderWidth(1);
 		VerticalPanel middle3 = new VerticalPanel();
 		middle3.setSize("100%", "100%");
-		middle2.setBorderWidth(3);
+		middle2.setBorderWidth(1);
+		VerticalPanel middleBottom = new VerticalPanel();
+		middleBottom.setSize("100%" , "100%");
+		middleBottom.setBorderWidth(1);
+		
+		//adding the form to the middle bottom panel
+		middleBottom.add(formCompare);
+		
 		middle.add(middle1);
-		middle.setCellHeight(middle1, "33%");
+		middle.setCellHeight(middle1, "30%");
 		middle.add(middle2);
-		middle.setCellHeight(middle2, "33%");
+		middle.setCellHeight(middle2, "30%");
 		middle.add(middle3);
-		middle.setCellHeight(middle3, "34%");
+		middle.setCellHeight(middle3, "30%");
+		middle.add(middleBottom);
+		middle.setCellHeight(middleBottom, "10%");
 		
 		
 		centerBlock.add(right);
@@ -113,17 +143,20 @@ public class CenterDisplay extends Composite {
 		VerticalPanel right3 = new VerticalPanel();
 		right3.setSize("100%", "100%");
 		right3.setBorderWidth(1);
+		VerticalPanel rightBottom = new VerticalPanel();
+		rightBottom.setSize("100%", "100%");
+		rightBottom.setBorderWidth(1);
 
 		right.add(right1);
-		right.setCellHeight(right1, "33%");
+		right.setCellHeight(right1, "30%");
 		right.add(right2);
-		right.setCellHeight(right2, "33%");
+		right.setCellHeight(right2, "30%");
 		right.add(right3);
-		right.setCellHeight(right3, "34%");
+		right.setCellHeight(right3, "30%");
+		right.add(rightBottom);
+		right.setCellHeight(rightBottom, "10%");
 		
 		initWidget(centerBlock);
-/*	
-*/
 		
 		String Split1[] = recStr.split(";");
 		int col=0;
@@ -160,26 +193,89 @@ public class CenterDisplay extends Composite {
 				}
 			}
 			Label i1= new Label(pId);
+			i1.setTitle("PRODUCT_ID");
 			Label i2= new Label(bId);
+			i2.setTitle("BRAND_ID");
 			Label i3= new Label(bCode);
+			i3.setTitle("BRAND_CATEGORY_CODE");
 			Label i4= new Label(price);
+			i4.setTitle("PRICE");
 			Label i5= new Label(bDesc);
+			i5.setTitle("BRAND_CATEGORY_DESC");
 			Image image = new Image();
+			
+			//check box
+			CheckBox checkBox = new CheckBox();
+			checkBox.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent e) {
+					boolean checked =  ((CheckBox) e.getSource()).getValue();
+					if(checked)
+					{
+						selected++;
+						Hidden itemData = new Hidden();
+						itemData.setName(selected.toString());
+						String value = "";
+						
+						VerticalPanel p =  (VerticalPanel)((CheckBox)e.getSource()).getParent();
+						Hidden rank = new Hidden();
+						rank.setName("RANK");
+						rank.setValue(selected.toString());
+						p.add(rank);
+						
+						for(int i=0; i< p.getWidgetCount() ; i++)
+						{
+							if ( p.getWidget(i) instanceof Label ) 
+							{
+								Window.alert( ((Label)p.getWidget(i)).getText() + 
+										"<-" + ((Label)p.getWidget(i)).getTitle() );
+								
+								if( (((Label)p.getWidget(i)).getTitle()).compareTo("PRODUCT_ID")==0 )
+								{
+									value += "PRODUCT_ID=" + ((Label)p.getWidget(i)).getText() +":";
+								}
+								else if( (((Label)p.getWidget(i)).getTitle()).compareTo("BRAND_CATEGORY_CODE")==0 )
+								{
+									value += "CODE=" + ((Label)p.getWidget(i)).getText() ;
+								}	
+							}
+						}
+						itemData.setValue(value);
+						formVPanel.add(itemData);
+					}
+					else
+					{
+						Window.alert("Unchecked");
+						selected--;
+						VerticalPanel p =  (VerticalPanel)((CheckBox)e.getSource()).getParent();
+						if ( p.getWidget(p.getWidgetCount() -1) instanceof Hidden )
+						{
+							Hidden rank = (Hidden)p.getWidget(p.getWidgetCount()-1);
+							String r = rank.getValue() ;
+							formVPanel.remove(Integer.parseInt(r));
+						}
+						else 
+							Window.alert("Not of type Hidden, need to test ur algo");
+					}
+					
+					//set the number of selected items to be sent when form submitted for compare
+					selectedNo.setValue(selected.toString());
+				}
+			});
+			
 			image.setUrl("http://localhost/m/images/" + iName );
 			image.setSize("130px", "130px");
-//			x.add(image, 0, 0);
-			Label i6= new Label(iName);
-//			x.add(i1);
-//			x.add(i3);
+			
 			x.add(image);
+			x.add(i1);
+			x.add(i3);
 			x.add(i2);
 			x.add(i4);
 			x.add(i5);
+			x.add(checkBox);
 			
 			VerticalPanel www = (VerticalPanel) centerBlock.getWidget(col);
 			VerticalPanel www2 = (VerticalPanel) www.getWidget(row);
 			www2.add(x);
-	//		www2.setCellHeight(x, "20px");
 			if (col >= 2)
 			{
 				col =0;
@@ -191,5 +287,34 @@ public class CenterDisplay extends Composite {
 			if (row >=2)
 				row=0;
 		}
+		
+		Image compare = new Image();
+		compare.setUrl("http://localhost/m/images/details_bt_bg.png");
+		middleBottom.add(compare);
+		middleBottom.setCellVerticalAlignment(compare, HasVerticalAlignment.ALIGN_MIDDLE);
+		middleBottom.setCellHorizontalAlignment(compare, HasHorizontalAlignment.ALIGN_CENTER);
+		
+		compare.addClickHandler(new ClickHandler(){
+			public void onClick(ClickEvent e){
+				if ( selected <2 ) 
+				{
+					Window.alert("You have selected less than 2 products");
+				}
+				formCompare.submit();
+			}
+		});
+		
+		formCompare.addSubmitHandler(new SubmitHandler(){
+			public void onSubmit(SubmitEvent e){
+				Window.alert("submitting to compare");
+			}
+		});
+		
+		formCompare.addSubmitCompleteHandler(new SubmitCompleteHandler(){
+			public void onSubmitComplete(SubmitCompleteEvent e){
+				Window.alert(e.getResults());
+			}
+		});
+		
 	}
 }
